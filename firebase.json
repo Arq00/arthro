@@ -1,0 +1,55 @@
+{
+  "flutter": {
+    "platforms": {
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "arthro-app",
+          "configurations": {
+            "android": "1:35475962002:android:c9fae3441d0c8636e08e4b",
+            "web": "1:35475962002:web:bc86df5deead1664e08e4b"
+          }
+        }
+      },
+      "android": {
+        "default": {
+          "projectId": "arthro-app",
+          "appId": "1:35475962002:android:c9fae3441d0c8636e08e4b",
+          "fileOutput": "android/app/google-services.json"
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "emulators": {
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    },
+    "singleProjectMode": true
+  }
+}

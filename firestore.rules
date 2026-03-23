@@ -1,0 +1,131 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    function isAdmin() {
+      let doc = get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+      return doc != null && doc.role == 'admin';
+    }
+    function isLinkedGuardian(patientId) {
+      let patientDoc = get(/databases/$(database)/documents/users/$(patientId)).data;
+      return patientDoc != null && patientDoc.guardianId == request.auth.uid;
+    }
+    function hasApprovedRequest(guardianId) {
+      let req = get(/databases/$(database)/documents/connectionRequests/$(request.auth.uid)).data;
+      return req != null && req.requestId == guardianId;
+    }
+    function canRevokeLink(userId) {
+      let userDoc = get(/databases/$(database)/documents/users/$(userId)).data;
+      return userDoc != null && (
+        request.auth.uid == userId ||
+        userDoc.patientId == request.auth.uid ||
+        userDoc.guardianId == request.auth.uid
+      );
+    }
+
+    match /rapid3Question/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /rapid3def/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /lifestyleReco/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /recommendation_templates/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /symptomQuestion/{questionId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /admin/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+    match /exercise_library/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /nutrition_library/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && isAdmin();
+    }
+    match /connectionRequests/{patientId} {
+      allow create: if isSignedIn() && request.resource.data.requestId == request.auth.uid;
+      allow read, delete: if isSignedIn() && request.auth.uid == patientId;
+      allow update: if false;
+    }
+    match /users/{userId} {
+      allow get: if isSignedIn() && (
+        isAdmin() ||
+        isOwner(userId) ||
+        isLinkedGuardian(userId) ||
+        resource.data.linkCode != null
+      );
+      allow list: if isSignedIn();
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && (
+        isAdmin() ||
+        isOwner(userId) ||
+        hasApprovedRequest(userId) ||
+        canRevokeLink(userId)
+      );
+      allow delete: if isSignedIn() && isAdmin();
+
+      match /notifications/{notifId} {
+        allow read, write: if isSignedIn() && isOwner(userId);
+        allow create: if isSignedIn();
+      }
+      match /medications/{medId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+      match /dailySummary/{dayId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+      match /appointments/{appointmentId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+      match /logs/{logId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+      match /symptomLogs/{logId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+      match /userLifestyleProgress/{progressId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+      match /userAdherence/{adherenceId} {
+        allow read, write: if isSignedIn() && (
+          isAdmin() || isOwner(userId) || isLinkedGuardian(userId)
+        );
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

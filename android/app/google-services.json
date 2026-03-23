@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "35475962002",
+    "project_id": "arthro-app",
+    "storage_bucket": "arthro-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:35475962002:android:c9fae3441d0c8636e08e4b",
+        "android_client_info": {
+          "package_name": "com.example.arthro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBZ1Mpymcd1ph-vsRqBGvFUHGvMB9ewg7c"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
